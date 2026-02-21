@@ -4,28 +4,14 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'domains/**'
 
 jobs:
   update-lists:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
-      - name: Checkout (PR)
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-
-      - name: Checkout (Main)
-        if: github.event_name == 'push'
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -35,15 +21,7 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Update lists.txt (PR)
-        if: github.event_name == 'pull_request'
-        env:
-          GITHUB_BASE_REF: ${{ github.base_ref }}
-        run: |
-          node scripts/update_lists_pr.js
-
-      - name: Update lists.txt (Main)
-        if: github.event_name == 'push'
+      - name: Update lists.txt
         env:
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
@@ -56,14 +34,8 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add lists.txt
-            
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              git commit -m "chore: update lists.txt (pending) for PR #${{ github.event.pull_request.number }}"
-              git push origin HEAD:${{ github.head_ref }}
-            else
-              git commit -m "chore: activate entries in lists.txt for recent merge"
-              git push origin main
-            fi
+            git commit -m "chore: activate entries in lists.txt for recent merge"
+            git push origin main
           else
             echo "No changes to commit."
           fi
