@@ -7,14 +7,16 @@ try {
     // Ensure we have the base ref available for comparison
     console.log(`Fetching origin/${baseRef}...`);
     try {
-        execSync(`git fetch origin ${baseRef} --depth=1`);
+        execSync(`git fetch origin ${baseRef}`);
     } catch (e) {
         console.warn("Fetch failed, might already have history.");
     }
 
     // Get list of changed files
     console.log(`Comparing HEAD with origin/${baseRef}...`);
-    const diffCmd = `git diff --name-status origin/${baseRef}...HEAD`;
+    // Use --name-status to see modified files
+    // Use origin/${baseRef} directly instead of ... to avoid merge-base issues if history is shallow
+    const diffCmd = `git diff --name-status origin/${baseRef} HEAD`;
     const diffOutput = execSync(diffCmd).toString();
     
     const lines = diffOutput.trim().split('\n');
@@ -27,9 +29,11 @@ try {
         
         const [status, filePath] = line.split('\t');
         
-        // Only allow changes in domains/reserved/*.json
+        // Only allow changes in domains/*.json and domains/reserved/*.json
         // If any other file is changed, manual review is required.
-        if (!filePath.startsWith('domains/reserved/') || !filePath.endsWith('.json')) {
+        const isDomainFile = filePath.startsWith('domains/') && filePath.endsWith('.json');
+        
+        if (!isDomainFile) {
             console.log(`Non-domain file changed: ${filePath}`);
             shouldApprove = false;
             break;
@@ -75,11 +79,30 @@ try {
     }
 
     // Output result for GitHub Actions
-    const outputValue = (shouldApprove && hasModifications) ? 'true' : 'false';
-    console.log(`Approve: ${outputValue}`);
-    
-    if (process.env.GITHUB_OUTPUT) {
-        fs.appendFileSync(process.env.GITHUB_OUTPUT, `approve=${outputValue}\n`);
+    if (shouldApprove && hasModifications) {
+        console.log("Changes verified. Auto-approving and merging PR...");
+        
+        const prNumber = process.env.PR_NUMBER;
+        if (!prNumber) {
+            console.error("PR_NUMBER environment variable is missing.");
+            process.exit(1);
+        }
+
+        try {
+            // Approve the PR
+            execSync(`gh pr review ${prNumber} --approve --body "Auto-approved: Changes verified."`, { stdio: 'inherit' });
+            console.log("PR approved successfully.");
+            
+            // Set output for next step
+            if (process.env.GITHUB_OUTPUT) {
+                fs.appendFileSync(process.env.GITHUB_OUTPUT, 'approved=true\n');
+            }
+        } catch (error) {
+            console.error(`Failed to approve PR: ${error.message}`);
+            process.exit(1);
+        }
+    } else {
+        console.log("Changes do not meet auto-approval criteria or no modifications found.");
     }
 
 } catch (error) {

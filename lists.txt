@@ -2,6 +2,7 @@
 _gh-is-app-top-o: "active"
 admin: "active"
 blog: "active"
+bluupio-app: "active"
 config: "active"
 control: "active"
 dashboard: "active"

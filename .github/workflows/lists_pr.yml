@@ -3,6 +3,8 @@ name: Update lists.txt from PR
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'domains/**'
 
 jobs:
   update-lists:
@@ -14,6 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Setup Node
@@ -34,7 +37,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add lists.txt
             git commit -m "chore: update lists.txt (pending) for PR #${{ github.event.pull_request.number }}"
-            git push
+            git push origin HEAD:${{ github.head_ref }}
           else
             echo "No changes to commit."
           fi
