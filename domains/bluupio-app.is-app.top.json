@@ -6,6 +6,6 @@
   "description": "For my app",
 
   "records": {
-    "NS":    ["ns1.desec.io", "ns2.desec.org"]
+    "NS":    ["ns1.desec.top", "ns2.desec.org"]
   }
 }
