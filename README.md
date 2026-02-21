@@ -5,7 +5,7 @@
 
 <p align="center">
     <img src="https://img.shields.io/github/stars/is-app-top/register?label=stars&style=for-the-badge&color=FFD700" alt="GitHub stars">&nbsp;&nbsp;
-    <img src="https://img.shields.io/github/directory-file-count/is-app-top/register/domains?label=domains&style=for-the-badge&color=4CAF50" alt="Domains">&nbsp;&nbsp;
+    <img src="https://img.shields.io/github/directory-file-count/is-app-top/register/domains?label=domains&type=file&extension=json&style=for-the-badge&color=4CAF50" alt="Domains">&nbsp;&nbsp;
     <img src="https://img.shields.io/github/issues-pr/is-app-top/register?label=Pull%20Requests&style=for-the-badge&color=FFA500" alt="GitHub pull requests">&nbsp;&nbsp;
 </p>
 
