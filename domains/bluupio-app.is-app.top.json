@@ -6,6 +6,6 @@
   "description": "bluupio-app will be used to deploy my projects.",
 
   "records": {
-    "NS":    ["ns1.desec.top", "ns2.desec.org"]
+    "NS":    ["ns1.desec.io", "ns2.desec.org"]
   }
 }
